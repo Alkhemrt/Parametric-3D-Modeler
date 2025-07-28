@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parametric 3D Modeler</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/nord.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="editor-panel">
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button id="run-code" class="btn primary">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                        </svg>
+                        <span>Run</span>
+                    </button>
+                    <button id="export-stl" class="btn secondary">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                        </svg>
+                        <span>Export STL</span>
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <div class="dropdown">
+                        <select id="examples" class="select">
+                            <option value="">Examples</option>
+                            <option value="gear">Gear</option>
+                            <option value="vase">Vase</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="bracket">Bracket</option>
+                        </select>
+                        <svg class="dropdown-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
+                        </svg>
+                    </div>
+                    <button id="toggle-debug" class="btn toggle">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,3A9,9 0 0,0 3,12H0L4,16L8,12H5A7,7 0 0,1 12,5A7,7 0 0,1 19,12A7,7 0 0,1 12,19C10.5,19 9.09,18.5 7.94,17.7L6.5,19.14C8.04,20.3 9.94,21 12,21A9,9 0 0,0 21,12A9,9 0 0,0 12,3M14,12A2,2 0 0,0 12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12Z" />
+                        </svg>
+                        <span>Debug</span>
+                    </button>
+                    <button id="toggle-slice" class="btn toggle">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19,13H5V11H19V13Z" />
+                        </svg>
+                        <span>Slice</span>
+                    </button>
+                    <button id="toggle-measure" class="btn toggle">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M3,4H5V10H7V4H9V18H7V12H5V18H3V4M11,4H13V10H15V4H17V18H15V12H13V18H11V4M19,4H21V18H19V4Z" />
+                        </svg>
+                        <span>Measure</span>
+                    </button>
+                </div>
+            </div>
+            <div id="editor" class="code-editor"></div>
+            <div class="slice-panel" id="slice-preview">
+                <div class="slice-header">
+                    <h3>2D Slice Preview</h3>
+                    <div class="slice-controls">
+                        <input type="range" id="slice-height" min="0" max="100" value="50" class="slider">
+                        <span id="slice-value" class="slice-value">50%</span>
+                    </div>
+                </div>
+                <canvas id="slice-canvas" class="slice-canvas"></canvas>
+            </div>
+        </div>
+        <div class="viewer-panel">
+            <div id="renderer-container" class="renderer-container"></div>
+            <div class="measurement-tooltip" id="measurement-tooltip" style="display: none;"></div>
+            <div class="viewer-controls">
+                <div class="viewer-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Vertices</span>
+                        <span id="vertex-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Faces</span>
+                        <span id="face-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item warning">
+                        <span class="stat-label">Warnings</span>
+                        <span id="warnings" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Size</span>
+                        <span id="model-size" class="stat-value">0×0×0</span>
+                    </div>
+                </div>
+                <div class="viewer-actions">
+                    <button id="reset-view" class="btn view-btn" title="Reset View (Down Arrow)">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" />
+                        </svg>
+                    </button>
+                    <button id="clear-measurements" class="btn view-btn" title="Clear Measurements">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/comment/comment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    
+    <script src="geometry.js"></script>
+    <script src="stl-exporter.js"></script>
+    <script src="editor.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
