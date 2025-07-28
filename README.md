@@ -2,6 +2,8 @@
 
 A basic web-based parametric 3D modeling tool built with Three.js.
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Online-green?style=for-the-badge&logo=github)](https://alkhemrt.github.io/Parametric-3D-Modeler/)
+
 ![Screenshot](https://github.com/user-attachments/assets/be6f0454-b704-428d-b3db-2d771b78e386)  
 
 
