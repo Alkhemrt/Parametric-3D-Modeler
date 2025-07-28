@@ -2,7 +2,7 @@
 
 A basic web-based parametric 3D modeling tool built with Three.js.
 
-[<img width="1920" height="908" alt="8" src="https://github.com/user-attachments/assets/be6f0454-b704-428d-b3db-2d771b78e386" />](https://github.com/user-attachments/assets/be6f0454-b704-428d-b3db-2d771b78e386)
+[img](https://github.com/user-attachments/assets/be6f0454-b704-428d-b3db-2d771b78e386)
 
 ## Features
 - Create 3D models using JavaScript code
