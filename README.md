@@ -20,7 +20,6 @@ A basic web-based parametric 3D modeling tool built with Three.js.
 1. Write or modify code in the editor panel
 2. Click "Run" to generate the 3D model
 3. Use mouse to rotate/zoom the view
-4. Export as STL when ready
 
 ## Controls
 - Left-click + drag: Rotate view
